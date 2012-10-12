@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+
+<project name="mpj-lab" basedir="." default="main">
+
+    <property environment="env"/>
+    <property name="src.dir"    value="src"/>
+    <property name="build.dir"  value="build"/>
+    <property name="jar.dir"    value="${build.dir}/jar"/>
+    <property name="build.file"  value="${ant.project.name}.jar"/>
+    <property name="build.filepath"  value="${user.dir}/${jar.dir}/${build.file}"/>
+    <property name="main-class" value="edu.dnu.mpj.lab_1.HelloWorld"/>
+    <property name="mpj.dir"    value="${env.MPJ_HOME}/lib"/>
+    <property name="classes.dir"    value="${build.dir}/classes"/>
+    <property name="mpj.jar-starter"    value="${env.MPJ_HOME}/lib/starter.jar"/>
+
+    <path id="classpath">
+        <fileset dir="${mpj.dir}" includes="**/*.jar"/>
+    </path>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="${classes.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath"/>
+    </target>
+
+    <target name="jar" depends="compile">
+        <mkdir dir="${jar.dir}"/>
+        <jar destfile="${build.filepath}" basedir="${classes.dir}">
+            <manifest>
+                <attribute name="Main-Class" value="${main-class}"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="run" depends="jar">
+        <java fork="true" classname="${main-class}">
+            <classpath>
+                <path refid="classpath"/>
+                <path location="${build.filepath}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <target name="run-mpj" depends="jar">
+        <java fork="true" jar="${mpj.jar-starter}">
+            <arg line="-np 4 ${build.filepath}"/>
+        </java>
+        <!--java -jar %MPJ_HOME%/lib/starter.jar -np 4 mpj-lab.jar-->
+    </target>
+
+    <target name="clean-build" depends="clean,jar"/>
+
+    <target name="main" depends="clean,run"/>
+
+</project>
